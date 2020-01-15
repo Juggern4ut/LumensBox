@@ -1,0 +1,161 @@
+$color-black: #000000;
+$color-white: #ffffff;
+$color-primary: #2c3a6e;
+
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba($color-black, 0.4);
+  z-index: 99;
+  display: none;
+  overflow: auto;
+
+  &--open {
+    display: block;
+  }
+
+  &--open &__inner {
+    //OPEN ANIMATIONS
+    &--jelly {
+      animation-name: jelly;
+      animation-timing-function: ease;
+    }
+
+    &--grow {
+      animation-name: grow;
+      animation-timing-function: ease;
+    }
+
+    &--fadein {
+      animation-name: fadein;
+      animation-timing-function: ease;
+    }
+
+    //CLOSE ANIMATIONS
+    &--fadeout {
+      animation-name: fadeout;
+      animation-timing-function: ease;
+    }
+
+    &--shrink {
+      animation-name: shrink;
+      animation-timing-function: ease;
+    }
+  }
+
+  &__inner {
+    width: 50vw;
+    max-width: 500px;
+    background-color: $color-white;
+    margin: 20vh auto;
+    box-shadow: 0 0 10px 10px rgba($color-black, 0.2);
+    position: relative;
+  }
+
+  &__close-handler {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    &::after,
+    &::before {
+      position: absolute;
+      display: block;
+      content: " ";
+      transform: translate(-50%, -50%);
+      top: 15px;
+      left: 15px;
+      width: 20px;
+      height: 2px;
+      background-color: $color-white;
+    }
+
+    &::after {
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    &::before {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+  }
+
+  &__title {
+    color: $color-white;
+    user-select: none;
+    font-weight: bold;
+    padding: 10px;
+    background-color: $color-primary;
+    margin: 0;
+  }
+
+  &__data {
+    padding: 20px;
+  }
+}
+
+@keyframes jelly {
+  from {
+    transform: scale(1, 1);
+  }
+  30% {
+    transform: scale(1.25, 0.75);
+  }
+  40% {
+    transform: scale(0.75, 1.25);
+  }
+  50% {
+    transform: scale(1.15, 0.85);
+  }
+  65% {
+    transform: scale(0.95, 1.05);
+  }
+  75% {
+    transform: scale(1.05, 0.95);
+  }
+  to {
+    transform: scale(1, 1);
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scale(0.3);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes shrink {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0.3);
+  }
+}
