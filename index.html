@@ -4,13 +4,55 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Fira+Sans&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="dist/css/main.css" />
     <script src="dist/js/app.min.js"></script>
     <title>Lumens Lightbox</title>
   </head>
   <body>
+    <h1>Lumens Lightbox</h1>
+    <p class="introduction">
+      This is the Demo-Page for the Lumens Lightbox. Please keep in mind, that
+      you should never place that many lightboxes in a single page, but rather
+      change the content of one globally used Lightbox. This is just for
+      demonstration purposes and if you spam the buttons to fast or press Esc
+      while opening a box and open it right again, it might cause problems.
+      In a running environment, this should never be a problem.
+    </p>
     <div class="container">
-      <button id="trigger">Click me</button>
+      <button class="button" id="basic">Basic lightbox</button>
+      <button class="button" id="uncloseable">Uncloseable lightbox</button>
+      <button class="button" id="animations">Different Animations</button>
+      <button class="button" id="draggable">Draggable lightbox</button>
+      <button class="button" id="callback">Using Callbacks</button>
+      <button class="button" id="stacked">Stacked lightboxes</button>
+
+      <!--<div class="options">
+        Options to pass:<br />
+        <br />
+        {<br />
+        &nbsp;&nbsp;additionalClasses = [],<br />
+        &nbsp;&nbsp;closeable = true,<br />
+        &nbsp;&nbsp;draggable = true,<br />
+        &nbsp;&nbsp;noCloseHandler = false,<br />
+        &nbsp;&nbsp;noCloseByEscape = false,<br />
+        &nbsp;&nbsp;openAnimation = "fadedown",<br />
+        &nbsp;&nbsp;closeAnimation = "fadeup",<br />
+        &nbsp;&nbsp;clickOutsideToClose = true,<br />
+        &nbsp;&nbsp;animationDuration = 500,<br />
+        &nbsp;&nbsp;boundsOffset = 20,<br />
+        &nbsp;&nbsp;keepInBounds = true,<br />
+        &nbsp;&nbsp;appendingElement = document.querySelector("body"),<br />
+        &nbsp;&nbsp;open = () => {},<br />
+        &nbsp;&nbsp;opened = () => {},<br />
+        &nbsp;&nbsp;close = () => {},<br />
+        &nbsp;&nbsp;closed = () => {},<br />
+        &nbsp;&nbsp;destroyed = () => {}<br />
+        }
+      </div>-->
     </div>
   </body>
 </html>

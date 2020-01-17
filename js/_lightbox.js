@@ -79,6 +79,10 @@ class Lightbox {
 
     if (this.options.draggable) {
       this.title.style.cursor = "move";
+      this.title.style.WebkitUserSelect = "none";
+      this.title.style.MozUserSelect = "none";
+      this.title.style.msUserSelect = "none";
+      this.title.style.userSelect = "none";
     }
 
     this.closeHandler.onclick = () => {
@@ -291,7 +295,7 @@ class Lightbox {
     this.options = {};
     this.options.additionalClasses = [];
     this.options.closeable = true;
-    this.options.draggable = true;
+    this.options.draggable = false;
     this.options.noCloseHandler = false;
     this.options.noCloseByEscape = false;
     this.options.openAnimation = "fadedown";
@@ -357,7 +361,11 @@ class Lightbox {
     if (typeof data === "object") {
       if (data.length) {
         data.forEach(el => {
-          this.data.append(el);
+          if (typeof el === "string") {
+            this.data.innerHTML += el;
+          } else {
+            this.data.append(el);
+          }
         });
       } else {
         this.data.append(data);
