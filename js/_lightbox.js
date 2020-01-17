@@ -12,8 +12,8 @@ class Lightbox {
    *  @param {(String|String[])} options.additionalClasses Additional classes that will be added to the lightbox
    *  @param {Boolean} options.closeable If set to false, all triggers to close the lightbox will be automatically overwritten
    *  @param {Boolean} options.draggable If set to true, the lightbox can be dragged by grabbing the titlebar
-   *  @param {Boolean} options.noCloseHandler If set to true, the lightbox will have no close button in the top right
-   *  @param {Boolean} options.noCloseByEscape If set to true, the lightbox can't be closed by pressing escape
+   *  @param {Boolean} options.closeHandler If set to false, the lightbox will have no close button in the top right
+   *  @param {Boolean} options.closeByEscape If set to false, the lightbox can't be closed by pressing escape
    *  @param {Boolean} options.clickOutsideToClose If set to true, the lightbox can be closed by clicking outside of it
    *  @param {String} options.openAnimation The animation that should be used to open the lightbox. Use: grow, fadein, jelly or fadedown
    *  @param {String} options.closeAnimation The animation that should be used to close the lightbox. Use: shrink, fadeout or fadeup
@@ -30,6 +30,8 @@ class Lightbox {
    */
   constructor(options) {
     options = options ? options : {};
+
+    this.isOpen = false;
 
     this.setDefaultSettings();
     this.updateSettings(options);
@@ -92,7 +94,7 @@ class Lightbox {
     this.data = document.createElement("div");
     this.data.classList.add("lightbox__data");
 
-    if (!this.options.noCloseHandler && this.options.closeable) {
+    if (this.options.closeHandler && this.options.closeable) {
       this.inner.append(this.closeHandler);
     }
 
@@ -110,9 +112,9 @@ class Lightbox {
    * @returns {Boolean} true if eventlistener has been set, false otherwise
    */
   setEscapeKeyToCloseLightbox() {
-    if (this.options.noCloseByEscape || !this.options.closeable) return false;
+    if (!this.options.closeByEscape || !this.options.closeable) return false;
     document.addEventListener("keydown", e => {
-      if (e.keyCode === 27) {
+      if (e.keyCode === 27 && this.isOpen) {
         this.close();
       }
     });
@@ -296,8 +298,8 @@ class Lightbox {
     this.options.additionalClasses = [];
     this.options.closeable = true;
     this.options.draggable = false;
-    this.options.noCloseHandler = false;
-    this.options.noCloseByEscape = false;
+    this.options.closeHandler = true;
+    this.options.closeByEscape = true;
     this.options.openAnimation = "fadedown";
     this.options.closeAnimation = "fadeup";
     this.options.clickOutsideToClose = true;
@@ -402,6 +404,7 @@ class Lightbox {
     document.querySelector("body, html").style.overflow = "hidden";
     setTimeout(() => {
       this.container.classList.remove("lightbox--opening");
+      this.isOpen = true;
       this.options.opened();
     }, this.options.animationDuration);
     return this;
@@ -420,6 +423,7 @@ class Lightbox {
     setTimeout(() => {
       this.container.classList.remove("lightbox--open");
       this.container.classList.remove("lightbox--closing");
+      this.isOpen = false;
       document.querySelector("body, html").style.overflow = "auto";
       this.inner.classList.remove(
         `lightbox__inner--${this.options.closeAnimation}`
