@@ -152,23 +152,28 @@ class Lightbox {
     this.currentTop = 0;
     this.currentLeft = 0;
 
-    this.title.addEventListener("mousedown", e => {
+    const mouseDown = e => {
       this.isDragging = true;
-      this.initialDragX = e.pageX;
-      this.initialDragY = e.pageY;
-    });
+      this.initialDragX = e.type === "touchmove" ? e.touches[0].pageX : e.pageX;
+      this.initialDragY = e.type === "touchmove" ? e.touches[0].pageY : e.pageY;
+    };
 
-    document.querySelector("body").addEventListener("mousemove", e => {
+    const mouseMove = e => {
       if (!this.isDragging) return false;
 
-      const top = e.pageY - this.initialDragY + this.currentTop;
-      const left = e.pageX - this.initialDragX + this.currentLeft;
+      e.preventDefault();
+
+      let tmpX = e.type === "touchmove" ? e.touches[0].pageX : e.pageX;
+      let tmpY = e.type === "touchmove" ? e.touches[0].pageY : e.pageY;
+
+      const top = tmpY - this.initialDragY + this.currentTop;
+      const left = tmpX - this.initialDragX + this.currentLeft;
 
       this.inner.style.top = `${top}px`;
       this.inner.style.left = `${left}px`;
-    });
+    };
 
-    document.querySelector("body").addEventListener("mouseup", () => {
+    const mouseUp = e => {
       if (!this.isDragging) return false;
       this.isDragging = false;
       this.currentTop = parseInt(this.inner.style.top);
@@ -180,7 +185,22 @@ class Lightbox {
       if (this.options.keepInBounds) {
         this.keepInBounds(this.options.boundsOffset);
       }
-    });
+    };
+
+    this.title.addEventListener("mousedown", e => mouseDown(e));
+    this.title.addEventListener("touchstart", e => mouseDown(e), false);
+
+    document
+      .querySelector("body")
+      .addEventListener("mousemove", e => mouseMove(e));
+    document
+      .querySelector("body")
+      .addEventListener("touchmove", e => mouseMove(e));
+
+    document.querySelector("body").addEventListener("mouseup", e => mouseUp(e));
+    document
+      .querySelector("body")
+      .addEventListener("touchend", e => mouseUp(e));
 
     return true;
   }
