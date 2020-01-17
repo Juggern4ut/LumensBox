@@ -15,3 +15,14 @@ h1 {
   text-align: justify;
   margin: 0 auto;
 }
+
+.link{
+  color: #444444;
+  text-decoration: none;
+  display: inline-block;
+  margin: 10px;
+  transition: 200ms ease-out;
+  &:hover{
+    color: #3f3cdd;
+  }
+}

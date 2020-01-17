@@ -49,6 +49,11 @@ $color-primary: #2c3a6e;
       animation-timing-function: ease;
     }
 
+    &--buildup {
+      animation-name: buildup;
+      animation-timing-function: ease;
+    }
+
     //CLOSE ANIMATIONS
     &--fadeout {
       animation-name: fadeout;
@@ -62,6 +67,16 @@ $color-primary: #2c3a6e;
 
     &--shrink {
       animation-name: shrink;
+      animation-timing-function: ease;
+    }
+
+    &--growout {
+      animation-name: growout;
+      animation-timing-function: ease;
+    }
+
+    &--collapse {
+      animation-name: collapse;
       animation-timing-function: ease;
     }
   }
@@ -160,6 +175,15 @@ $color-primary: #2c3a6e;
   }
 }
 
+@keyframes buildup {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
 @keyframes fadedown {
   from {
     opacity: 0;
@@ -203,6 +227,18 @@ $color-primary: #2c3a6e;
   }
 }
 
+@keyframes growout {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(10);
+  }
+}
+
 @keyframes containerBgIn {
   from {
     background-color: transparent;
@@ -218,5 +254,14 @@ $color-primary: #2c3a6e;
   }
   to {
     background-color: transparent;
+  }
+}
+
+@keyframes collapse {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0);
   }
 }

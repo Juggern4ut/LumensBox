@@ -41,12 +41,12 @@ const animatedLightbox = () => {
   const animationsTrigger = document.getElementById("animations");
   window.animationsLightbox = new Lightbox({
     openAnimation: "jelly",
-    closeAnimation: "shrink"
+    closeAnimation: "collapse"
   });
   window.animationsLightbox.setTitle("Animated Lightbox");
   window.animationsLightbox.setContent([
     "<p>This Lightbox has different opening and closing animations</p>",
-    "<p>It uses 'jelly' to open and 'shrink' to close, but there are several more.</p>"
+    "<p>It uses 'jelly' to open and 'collapse' to close, but there are several more.</p>"
   ]);
   animationsTrigger.onclick = () => window.animationsLightbox.open();
 };
