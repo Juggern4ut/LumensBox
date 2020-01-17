@@ -1,12 +1,32 @@
 /**
- * Represents a lightbox
+ * Represents a lightbox that can be used to display information
+ * to the user by being displayed on the top layer of the page
+ *
+ * @class Lightbox
  */
-class LumensBox {
+class Lightbox {
   /**
    * Sets up the basic structure and DOM of the lightbox
    * @author {Lukas Meier}
    * @param {Object} options The options to configure the lightbox
-   * @returns {void}
+   *  @param {(String|String[])} options.additionalClasses Additional classes that will be added to the lightbox
+   *  @param {Boolean} options.closeable If set to false, all triggers to close the lightbox will be automatically overwritten
+   *  @param {Boolean} options.draggable If set to true, the lightbox can be dragged by grabbing the titlebar
+   *  @param {Boolean} options.noCloseHandler If set to true, the lightbox will have no close button in the top right
+   *  @param {Boolean} options.noCloseByEscape If set to true, the lightbox can't be closed by pressing escape
+   *  @param {Boolean} options.clickOutsideToClose If set to true, the lightbox can be closed by clicking outside of it
+   *  @param {String} options.openAnimation The animation that should be used to open the lightbox. Use: grow, fadein, jelly or fadedown
+   *  @param {String} options.closeAnimation The animation that should be used to close the lightbox. Use: shrink, fadeout or fadeup
+   *  @param {Number} options.animationDuration The duration of the animation in milliseconds
+   *  @param {Number} options.boundsOffset If the lightbox is dragged outside of the page it will snap back with this margin
+   *  @param {Boolean} options.keepInBounds If set to true, the lightbox will snap back into bounds if dragged outside
+   *  @param {HTMLElement} options.appendingElement The Lightbox will be appended to this element. The body is strongly recommended here, as it is the default anyways.
+   *  @param {Function} options.open Callback that gets called when the lightbox starts opening
+   *  @param {Function} options.opened Callback that gets called when the lightbox finished opening
+   *  @param {Function} options.close Callback that gets called when the lightbox starts closing
+   *  @param {Function} options.closed Callback that gets called when the lightbox finished closing
+   *  @param {Function} options.destroyed Callback that gets called when the lightbox is destroyed
+   * @returns {Lightbox} The created lightbox object.
    */
   constructor(options) {
     options = options ? options : {};
@@ -14,19 +34,42 @@ class LumensBox {
     this.setDefaultSettings();
     this.updateSettings(options);
 
+    this.setupDomElements();
+
+    this.setEscapeKeyToCloseLightbox();
+    this.draggableLightbox();
+    this.clickOutsideToClose();
+
+    return this;
+  }
+
+  /**
+   * Will create the DOM-Elements and place them at the end of the body
+   * @author {Lukas Meier}
+   * @returns {void}
+   */
+  setupDomElements() {
     this.container = document.createElement("div");
     this.container.classList.add("lightbox");
+    this.container.style.animationDuration = `${this.options.animationDuration}ms`;
 
-    if (options.additionalClasses && options.additionalClasses.length) {
-      options.additionalClasses.forEach(className => {
-        this.container.classList.add(className);
-      });
+    if (
+      this.options.additionalClasses &&
+      this.options.additionalClasses.length
+    ) {
+      if (typeof this.options.additionalClasses === "string") {
+        this.container.classList.add(this.options.additionalClasses);
+      } else {
+        this.options.additionalClasses.forEach(className => {
+          this.container.classList.add(className);
+        });
+      }
     }
 
     this.inner = document.createElement("div");
     this.inner.classList.add("lightbox__inner");
     this.inner.classList.add(`lightbox__inner--${this.options.openAnimation}`);
-    this.inner.style.animationDuration = this.options.animationDuration + "ms";
+    this.inner.style.animationDuration = `${this.options.animationDuration}ms`;
 
     this.closeHandler = document.createElement("div");
     this.closeHandler.classList.add("lightbox__close-handler");
@@ -45,19 +88,14 @@ class LumensBox {
     this.data = document.createElement("div");
     this.data.classList.add("lightbox__data");
 
-    if (!this.options.noCloseHandler) {
+    if (!this.options.noCloseHandler && this.options.closeable) {
       this.inner.append(this.closeHandler);
     }
+
     this.inner.append(this.title);
     this.inner.append(this.data);
     this.container.append(this.inner);
-    document.querySelector("body").append(this.container);
-    if (!this.options.noCloseByEscape) {
-      this.setEscapeKeyToCloseLightbox();
-    }
-    if (this.options.draggable) {
-      this.draggableLightbox();
-    }
+    this.options.appendingElement.append(this.container);
   }
 
   /**
@@ -65,14 +103,33 @@ class LumensBox {
    * allow the user to close the lightbox
    * by pressing the escape key
    * @author {Lukas Meier}
-   * @returns {void}
+   * @returns {Boolean} true if eventlistener has been set, false otherwise
    */
   setEscapeKeyToCloseLightbox() {
+    if (this.options.noCloseByEscape || !this.options.closeable) return false;
     document.addEventListener("keydown", e => {
       if (e.keyCode === 27) {
         this.close();
       }
     });
+    return true;
+  }
+
+  /**
+   * Sets a clicklistener to close the lightbox by
+   * clicking outside of it.
+   * @author {Lukas Meier}
+   * @returns {Boolean} true if eventlistener has been set, false otherwise
+   */
+  clickOutsideToClose() {
+    if (!this.options.clickOutsideToClose || !this.options.closeable)
+      return false;
+    this.container.addEventListener("click", e => {
+      if (e.target === this.container) {
+        this.close();
+      }
+    });
+    return true;
   }
 
   /**
@@ -80,9 +137,11 @@ class LumensBox {
    * the user to drag the lightbox by dragging
    * the title bar.
    * @author {Lukas Meier}
-   * @returns {void}
+   * @returns {Boolean} true if eventlisteners have been set, false otherwise
    */
   draggableLightbox() {
+    if (!this.options.draggable) return false;
+
     this.isDragging = false;
     this.currentTop = 0;
     this.currentLeft = 0;
@@ -112,14 +171,18 @@ class LumensBox {
       this.currentTop = this.currentTop ? this.currentTop : 0;
       this.currentLeft = this.currentLeft ? this.currentLeft : 0;
 
-      this.keepInBounds(20);
+      if (this.options.keepInBounds) {
+        this.keepInBounds(this.options.boundsOffset);
+      }
     });
+
+    return true;
   }
 
   /**
    * Will reset the draggin position of the lightbox
    * @author {Lukas Meier}
-   * @returns {void}
+   * @returns {Boolean} true if position has been reset, false otherwise
    */
   resetPosition() {
     if (this.options.draggable) {
@@ -127,42 +190,10 @@ class LumensBox {
       this.inner.style.left = 0;
       this.currentLeft = 0;
       this.currentTop = 0;
+      return true;
+    } else {
+      return false;
     }
-  }
-
-  /**
-   * Gives the lightbox the --open modifier which
-   * is used by CSS to make the lightbox visible
-   * @author {Lukas Meier}
-   * @returns {void}
-   */
-  open() {
-    this.options.open();
-    this.resetPosition();
-    this.container.classList.add("lightbox--open");
-    document.querySelector("body, html").style.overflow = "hidden";
-    setTimeout(() => {
-      this.options.opened();
-    }, this.options.animationDuration);
-  }
-
-  /**
-   * Removes the --open modifier from the lightbox
-   * is used by CSS to make the lightbox visible
-   * @author {Lukas Meier}
-   * @returns {void}
-   */
-  close() {
-    this.options.close();
-    this.inner.classList.add(`lightbox__inner--${this.options.closeAnimation}`);
-    setTimeout(() => {
-      this.container.classList.remove("lightbox--open");
-      document.querySelector("body, html").style.overflow = "auto";
-      this.inner.classList.remove(
-        `lightbox__inner--${this.options.closeAnimation}`
-      );
-      this.options.closed();
-    }, this.options.animationDuration);
   }
 
   /**
@@ -184,7 +215,7 @@ class LumensBox {
     //Prevent the box from going above the page bounds
     if (this.inner.offsetTop < 0) {
       const tmp = this.currentTop + Math.abs(this.inner.offsetTop) + puffer;
-      this.inner.style.top = tmp + "px";
+      this.inner.style.top = `${tmp}px`;
       this.currentTop = tmp;
       returnValue.wentAbove = true;
     }
@@ -197,7 +228,7 @@ class LumensBox {
       const bottom = this.inner.offsetTop + this.inner.offsetHeight + puffer;
       const diff = window.innerHeight - bottom;
       const tmp = this.currentTop + diff;
-      this.inner.style.top = tmp + "px";
+      this.inner.style.top = `${tmp}px`;
       this.currentTop = tmp;
 
       const marginTop = parseInt(
@@ -207,7 +238,7 @@ class LumensBox {
       const minTop = (marginTop - puffer) * -1;
       if (this.currentTop < minTop) {
         this.currentTop = minTop;
-        this.inner.style.top = minTop + "px";
+        this.inner.style.top = `${minTop}px`;
       }
 
       returnValue.wentBelow = true;
@@ -216,7 +247,7 @@ class LumensBox {
     //Prevent the box from going left of the page bounds
     if (this.inner.offsetLeft < 0) {
       const tmp = this.currentLeft + Math.abs(this.inner.offsetLeft) + puffer;
-      this.inner.style.left = tmp + "px";
+      this.inner.style.left = `${tmp}px`;
       this.currentLeft = tmp;
       returnValue.wentLeft = true;
     }
@@ -229,7 +260,7 @@ class LumensBox {
       const right = this.inner.offsetLeft + this.inner.offsetWidth + puffer;
       const diff = window.innerWidth - right;
       const tmp = this.currentLeft + diff;
-      this.inner.style.left = tmp + "px";
+      this.inner.style.left = `${tmp}px`;
       this.currentLeft = tmp;
 
       const marginLeft = parseInt(
@@ -241,7 +272,7 @@ class LumensBox {
       const minLeft = (marginLeft - puffer) * -1;
       if (this.currentLeft < minLeft) {
         this.currentLeft = minLeft;
-        this.inner.style.left = minLeft + "px";
+        this.inner.style.left = `${minLeft}px`;
       }
 
       returnValue.wentRight = true;
@@ -251,11 +282,74 @@ class LumensBox {
   }
 
   /**
+   * Sets the settings to the default values. This is called
+   * on initialisation and can be used to reset all settings.
+   * @author {Lukas Meier}
+   * @returns {void}
+   */
+  setDefaultSettings() {
+    this.options = {};
+    this.options.additionalClasses = [];
+    this.options.closeable = true;
+    this.options.draggable = true;
+    this.options.noCloseHandler = false;
+    this.options.noCloseByEscape = false;
+    this.options.openAnimation = "fadedown";
+    this.options.closeAnimation = "fadeup";
+    this.options.clickOutsideToClose = true;
+    this.options.animationDuration = 500;
+    this.options.boundsOffset = 20;
+    this.options.keepInBounds = true;
+    this.options.appendingElement = document.querySelector("body");
+    this.options.open = () => {};
+    this.options.opened = () => {};
+    this.options.close = () => {};
+    this.options.closed = () => {};
+    this.options.destroyed = () => {};
+  }
+
+  /**
+   * Overrites default settings with custom ones.
+   * @author {Lukas Meier}
+   * @param {Object} options - Optional settings object.
+   * @returns {void}
+   */
+  updateSettings(options) {
+    for (let key in options) {
+      if (key === "appendingElement" && !options.appendingElement) {
+        console.warn(
+          "The Element to append the lightbox to, could not be found. It will be appended to the body instead."
+        );
+      }
+
+      if (options.hasOwnProperty(key)) {
+        if (typeof options[key] === "object") {
+          if (
+            options[key] instanceof Element ||
+            options[key] instanceof HTMLDocument
+          ) {
+            this.options[key] = options[key];
+          } else {
+            let suboptions = options[key];
+            for (let subkey in suboptions) {
+              if (suboptions.hasOwnProperty(subkey)) {
+                this.options[key][subkey] = suboptions[subkey];
+              }
+            }
+          }
+        } else {
+          this.options[key] = options[key];
+        }
+      }
+    }
+  }
+
+  /**
    * Will set the content of the lightbox
    * @author {Lukas Meier}
-   * @param {String | Object} data The data to display. Can be a String, a HTMLObject or an Array of either.
+   * @param {(String|Object)} data The data to display. Can be a String, a HTMLObject or an Array of either.
    * @param {String} title The title displayed in the top left of the lightbox
-   * @returns {void}
+   * @returns {Lightbox} The current Lightbox-Object
    */
   setContent(data) {
     this.data.innerHTML = "";
@@ -271,59 +365,74 @@ class LumensBox {
     } else {
       this.data.innerHTML = data;
     }
+    return this;
   }
 
   /**
    * Will set the Title of the Lightbox
    * @param {String} title The title to set in the lightbox
    * @author {Lukas Meier}
+   * @returns {Lightbox} The current Lightbox-Object
    */
   setTitle(title) {
     title = title ? title : "";
     this.title.innerHTML = title;
+    return this;
   }
 
   /**
-   * Sets the settings to the default values. This is called
-   * on initialisation and can be used to reset all settings.
+   * Gives the lightbox the --open modifier which
+   * is used by CSS to make the lightbox visible
    * @author {Lukas Meier}
-   * @returns {void}
+   * @returns {Lightbox} The current Lightbox-Object
    */
-  setDefaultSettings() {
-    this.options = {};
-    this.options.additionalClasses = [];
-    this.options.draggable = true;
-    this.options.noCloseHandler = false;
-    this.options.noCloseByEscape = false;
-    this.options.openAnimation = "fadein";
-    this.options.closeAnimation = "fadeout";
-    this.options.animationDuration = 500;
-    this.options.open = () => {};
-    this.options.opened = () => {};
-    this.options.close = () => {};
-    this.options.closed = () => {};
+  open() {
+    this.options.open();
+    this.resetPosition();
+    this.container.classList.add("lightbox--open");
+    this.container.classList.add("lightbox--opening");
+    document.querySelector("body, html").style.overflow = "hidden";
+    setTimeout(() => {
+      this.container.classList.remove("lightbox--opening");
+      this.options.opened();
+    }, this.options.animationDuration);
+    return this;
   }
 
   /**
-   * Overrites default settings with custom ones.
+   * Removes the --open modifier from the lightbox
+   * is used by CSS to make the lightbox visible
    * @author {Lukas Meier}
-   * @param {Object} options - Optional settings object.
+   * @returns {Lightbox} The current Lightbox-Object
+   */
+  close() {
+    this.options.close();
+    this.inner.classList.add(`lightbox__inner--${this.options.closeAnimation}`);
+    this.container.classList.add("lightbox--closing");
+    setTimeout(() => {
+      this.container.classList.remove("lightbox--open");
+      this.container.classList.remove("lightbox--closing");
+      document.querySelector("body, html").style.overflow = "auto";
+      this.inner.classList.remove(
+        `lightbox__inner--${this.options.closeAnimation}`
+      );
+      this.options.closed();
+    }, this.options.animationDuration);
+    return this;
+  }
+
+  /**
+   * Will remove all traces of the lightbox from the DOM
+   * and calls the destroyed callback.
+   * @author {Lukas Meier}
    * @returns {void}
    */
-  updateSettings(options) {
-    for (var key in options) {
-      if (options.hasOwnProperty(key)) {
-        if (typeof options[key] === "object") {
-          var suboptions = options[key];
-          for (var subkey in suboptions) {
-            if (suboptions.hasOwnProperty(subkey)) {
-              this.options[key][subkey] = suboptions[subkey];
-            }
-          }
-        } else {
-          this.options[key] = options[key];
-        }
-      }
-    }
+  destroy() {
+    this.container.remove();
+    this.inner.remove();
+    this.closeHandler.remove();
+    this.title.remove();
+    this.data.remove();
+    this.options.destroyed();
   }
 }

@@ -8,12 +8,22 @@ $color-primary: #2c3a6e;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba($color-black, 0.4);
   z-index: 99;
   display: none;
   overflow: auto;
 
+  &--closing {
+    animation-name: containerBgOut;
+    animation-timing-function: ease;
+  }
+
+  &--opening {
+    animation-name: containerBgIn;
+    animation-timing-function: ease;
+  }
+
   &--open {
+    background-color: rgba($color-black, 0.4);
     display: block;
   }
 
@@ -34,9 +44,19 @@ $color-primary: #2c3a6e;
       animation-timing-function: ease;
     }
 
+    &--fadedown {
+      animation-name: fadedown;
+      animation-timing-function: ease;
+    }
+
     //CLOSE ANIMATIONS
     &--fadeout {
       animation-name: fadeout;
+      animation-timing-function: ease;
+    }
+
+    &--fadeup {
+      animation-name: fadeup;
       animation-timing-function: ease;
     }
 
@@ -141,6 +161,18 @@ $color-primary: #2c3a6e;
   }
 }
 
+@keyframes fadedown {
+  from {
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes fadeout {
   from {
     opacity: 1;
@@ -151,11 +183,41 @@ $color-primary: #2c3a6e;
   }
 }
 
+@keyframes fadeup {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+}
+
 @keyframes shrink {
   from {
     transform: scale(1);
   }
   to {
     transform: scale(0.3);
+  }
+}
+
+@keyframes containerBgIn {
+  from {
+    background-color: transparent;
+  }
+  to {
+    background-color: rgba($color-black, 0.4);
+  }
+}
+
+@keyframes containerBgOut {
+  from {
+    background-color: rgba($color-black, 0.4);
+  }
+  to {
+    background-color: transparent;
   }
 }

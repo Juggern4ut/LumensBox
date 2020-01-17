@@ -1,0 +1,16 @@
+#trigger {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  appearance: none;
+  border: 1px solid #888888;
+  background-color: #dedede;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: 200ms ease-out;
+
+  &:hover {
+    background: #b8b8b8;
+  }
+}

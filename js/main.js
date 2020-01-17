@@ -1,18 +1,15 @@
 window.addEventListener("load", () => {
   const trigger = document.getElementById("trigger");
   if (trigger) {
-    
-    const lightbox = new LumensBox({
+    window.lightbox = new Lightbox({
       animationDuration: 500,
-      openAnimation: "jelly",
+      openAnimation: "fadedown", 
       closeAnimation: "shrink"
-    });
-
-    lightbox.setTitle("Lightbox Title");
+    }).setTitle("Lightbox Title");
 
     const text = document.createElement("p");
     text.innerHTML =
-      "You can close the box by pressing 'ESC', clicking the X in the top right or press the close button below.";
+      "You can close the box by pressing 'ESC', clicking the X in the top right, press the close button below or click outside of the lightbox";
 
     const button = document.createElement("button");
     button.innerHTML = "Close";
