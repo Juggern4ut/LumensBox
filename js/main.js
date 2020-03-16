@@ -14,7 +14,8 @@ const basicLightbox = () => {
   window.basicLightbox.setContent([
     "<p>This is a basic Lightbox with no options passed.</p>",
     "<p>It can contain everything you can place in HTML such as Iframes, Images, Videos or just plain Text</p>",
-    "<p>The lightbox can be closed by clicking outside, pressing the escape key or clicking the X in the top right. All those options can be individually configured</p>"
+    "<p>The lightbox can be closed by clicking outside, pressing the escape key or clicking the X in the top right. All those options can be individually configured</p>",
+    `<pre>var box = new Lightbox();<br />box.setTitle('Basic Lightbox');<br/>box.setContent('The content');<br/>box.open();</pre>`
   ]);
   basicTrigger.onclick = () => window.basicLightbox.open();
 };
@@ -32,6 +33,7 @@ const uncloseableLightbox = () => {
   window.uncloseableLightbox.setTitle("Uncloseable Lightbox");
   window.uncloseableLightbox.setContent([
     "<p>This box cannot be closed, except with this custom made close button</p>",
+    "<pre>var box = new Lightbox({<br> closeable: false<br>});<br><br>closeButton.onclick = function(){<br> box.close();<br>}</pre>",
     closeButton
   ]);
   uncloseableTrigger.onclick = () => window.uncloseableLightbox.open();
@@ -46,7 +48,8 @@ const animatedLightbox = () => {
   window.animationsLightbox.setTitle("Animated Lightbox");
   window.animationsLightbox.setContent([
     "<p>This Lightbox has different opening and closing animations</p>",
-    "<p>It uses 'jelly' to open and 'collapse' to close, but there are several more.</p>"
+    "<p>It uses 'jelly' to open and 'collapse' to close, but there are several more.</p>",
+    "<pre>var box = new Lightbox({<br> openAnimation: 'jelly',<br> closeAnimation: 'collapse'<br>})</pre>"
   ]);
   animationsTrigger.onclick = () => window.animationsLightbox.open();
 };
@@ -60,7 +63,8 @@ const draggableLightbox = () => {
   window.draggableLightbox.setContent([
     "<p>This Lightbox can be dragged around by grabbing the titlebar</p>",
     "<p>If you drag it outside of the pagebounds and let go, it will snap back</p>",
-    "<p>With this option enabled, the user can no longer select the text in the title of the lightbox.</p>"
+    "<p>With this option enabled, the user can no longer select the text in the title of the lightbox.</p>",
+    "<pre>var box = new Lightbox({<br> draggable: true<br>});</pre>"
   ]);
   draggableTrigger.onclick = () => window.draggableLightbox.open();
 };
@@ -72,9 +76,10 @@ const callbackLightbox = () => {
     close: () => window.callbackLightbox.setContent("<p>Bye Bye</p>"),
     open: () => window.callbackLightbox.setContent("<p>Hello there</p>"),
     opened: () =>
-      window.callbackLightbox.setContent(
-        "<p>This Lightbox will use callbacks to change the content</p>"
-      )
+      window.callbackLightbox.setContent([
+        "<p>This Lightbox will use callbacks to change the content</p>",
+        `<pre><br>var box = new Lightbox({<br> close: () => box.setContent("Bye Bye"),<br> open: () => box.setContent("Hello there"),<br> opened: () => box.setContent("This")<br>})</pre>`
+      ])
   });
   window.callbackLightbox.setTitle("Callback Lightbox");
   callbackTrigger.onclick = () => window.callbackLightbox.open();
